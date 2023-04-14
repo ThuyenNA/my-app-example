@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@shopify/app": "3.45.0",
-    "@shopify/cli": "3.45.0"
+    "@shopify/app-bridge-react": "^3.7.5",
+    "@shopify/cli": "3.45.0",
+    "@shopify/react-form": "^2.5.4"
   },
   "author": "BSS"
 }

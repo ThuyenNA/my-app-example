@@ -6,6 +6,7 @@ import serveStatic from "serve-static";
 
 import shopify from "./shopify.js";
 import applyQrCodeApiEndpoints from "./middleware/qr-code-api.js";
+import appDiscountEndpoints from "./middleware/discount-api.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 import applyQrCodePublicEndpoints from "./middleware/qr-code-public.js";
 
@@ -39,6 +40,7 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 app.use(express.json());
 
 applyQrCodeApiEndpoints(app);
+appDiscountEndpoints(app);
 
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));

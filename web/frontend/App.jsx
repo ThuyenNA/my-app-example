@@ -18,6 +18,14 @@ export default function App() {
       <BrowserRouter>
         <AppBridgeProvider>
           <QueryProvider>
+            <NavigationMenu
+              navigationLinks={[
+                {
+                  label: "Discount",
+                  destination: "/discount",
+                },
+              ]}
+            />
             <Routes pages={pages} />
           </QueryProvider>
         </AppBridgeProvider>

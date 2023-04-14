@@ -32,7 +32,6 @@ export default function HomePage() {
   } = useAppQuery({
     url: "/api/qrcodes",
   });
-
   /* Set the QR codes to use in the list */
   const qrCodesMarkup = QRCodes?.length ? (
     <QRCodeIndex QRCodes={QRCodes} loading={isRefetching} />
@@ -71,13 +70,13 @@ export default function HomePage() {
   */
   return (
     <Page fullWidth={!!qrCodesMarkup}>
-      <TitleBar
+      {/* <TitleBar
         title="QR codes"
         primaryAction={{
           content: "Create QR code",
           onAction: () => navigate("/qrcodes/new"),
         }}
-      />
+      /> */}
       <Layout>
         <Layout.Section>
           {loadingMarkup}

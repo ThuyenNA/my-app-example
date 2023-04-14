@@ -126,6 +126,31 @@ export default function applyQrCodeApiEndpoints(app) {
     }
   });
 
+  app.get("/api/products", async (req, res) => {
+    try {
+      const session = res.locals.shopify.session;
+      const client = new shopify.api.clients.Graphql({ session });
+      const queryString = `{
+        products(first: 10) {
+          edges {
+            node {
+              id
+              title
+              tags
+            }
+          }
+        }
+      }`;
+      const data = await client.query({
+        data: queryString,
+      });
+
+      res.status(200).send(data);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  });
+
   app.get("/api/qrcodes/:id", async (req, res) => {
     const qrcode = await getQrCodeOr404(req, res);
 
