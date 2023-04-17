@@ -21,7 +21,7 @@ import {
   Loading,
 } from "@shopify/polaris";
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { useAppQuery } from "../hooks";
+import { useAppQuery, useAuthenticatedFetch } from "../hooks";
 import { Provider, ResourcePicker } from "@shopify/app-bridge-react";
 const Discount = () => {
   const [name, setName] = useState("");
@@ -42,7 +42,6 @@ const Discount = () => {
   const [selectedProduct, setSelectedProduct] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState([]);
 
-  var rows = [];
   const handleChange = useCallback((value) => setName(value), []);
   const handleChangePrioriry = useCallback((value) => SetPriority(value), []);
   const handleChangeAmount = useCallback((value) => SetAmount(value), []);
@@ -54,37 +53,15 @@ const Discount = () => {
   ];
   const [value, setValue] = useState("allProducts");
 
-  const [selectedOptions, setSelectedOptions] = useState(["01/13"]);
+  const [selectedOptions, setSelectedOptions] = useState(["accessories"]);
   var arr = [];
+
   var arrListProduct = [];
+  const fetch = useAuthenticatedFetch();
+  const [selectedPrice, setSelectedPrice] = useState(["selectedProducts"]);
+  var arrProduct = [];
+  var arrCollections = [];
 
-  const {
-    data: ProductsList,
-    isLoading: isLoading3,
-    isRefetching: isRefetching3,
-  } = useAppQuery({
-    url: "/api/products",
-  });
-  if (ProductsList) {
-    ProductsList.body.data.products.edges.forEach((e) => {
-      arrListProduct.push([e.node.title, "-20%"]);
-    });
-  }
-  useMemo(() => setListProducts(arrListProduct), [ProductsList]);
-  // if (listProcducts) {
-  //   console.log(listProcducts[0].node.title, "-20%");
-  // }
-  console.log("listProcducts: ", listProcducts);
-
-  const {
-    data: Products,
-    isLoading: isLoading2,
-    isRefetching: isRefetching2,
-  } = useAppQuery({
-    url: "/api/tags/arrivals,b2b,dress,F14",
-  });
-
-  console.log("Products:", Products);
   const {
     data: Tags,
     isLoading: isLoading,
@@ -103,6 +80,52 @@ const Discount = () => {
 
   const [inputValue, setInputValue] = useState("");
 
+  const Data = JSON.parse(localStorage.getItem("arrListProduct"));
+  const Name = JSON.parse(localStorage.getItem("Name"));
+  const Priority = JSON.parse(localStorage.getItem("Priority"));
+  const status = JSON.parse(localStorage.getItem("status"));
+  const applyProducts = JSON.parse(localStorage.getItem("applyProducts"));
+  const selectedProductDb = JSON.parse(localStorage.getItem("selectedProduct"));
+  const selectedCollectionDb = JSON.parse(
+    localStorage.getItem("selectedCollection")
+  );
+  const selectedTagsDb = JSON.parse(localStorage.getItem("selectedTags"));
+  const slectedPrice = JSON.parse(localStorage.getItem("slectedPrice"));
+  const Amout = JSON.parse(localStorage.getItem("Amout"));
+  if (Data)
+    if (Data.length > 0) {
+      useMemo(() => setListProducts(Data), []);
+    }
+  if (selectedCollectionDb)
+    if (selectedCollectionDb.length > 0) {
+      useMemo(() => setSelectedCollection(selectedCollectionDb), []);
+    }
+  if (selectedTagsDb)
+    if (selectedTagsDb.length > 0) {
+      useMemo(() => setSelectedOptions(selectedTagsDb), []);
+    }
+  if (Name) {
+    useMemo(() => setName(Name), []);
+  }
+  if (Priority) {
+    useMemo(() => SetPriority(Priority), []);
+  }
+  if (applyProducts) {
+    useMemo(() => setValue(applyProducts), []);
+  }
+  if (status) {
+    useMemo(() => setSelected(status), []);
+  }
+  if (Amout) {
+    useMemo(() => SetAmount(Amout), []);
+  }
+  if (selectedProductDb)
+    if (selectedProductDb.length > 0) {
+      useMemo(() => setSelectedProduct(selectedProductDb), []);
+    }
+  if (slectedPrice) {
+    useMemo(() => setSelectedPrice([slectedPrice]), []);
+  }
   const updateText = useCallback(
     (value) => {
       setInputValue(value);
@@ -165,9 +188,7 @@ const Discount = () => {
       .map((word) => word.replace(word[0], word[0].toUpperCase()))
       .join("");
   }
-  const [selectedPrice, setSelectedPrice] = useState(["selectedProducts"]);
-  var arrProduct = [];
-  var arrCollections = [];
+
   const handleChangePrice = useCallback((value) => setSelectedPrice(value), []);
   const handleProductChange = useCallback(({ selection }) => {
     arrProduct = new Array();
@@ -195,7 +216,8 @@ const Discount = () => {
     setShowResourcePickerCollection(false);
     setShowSelectedCollection(true);
   }, []);
-  const handleSubmit = () => {
+
+  const handleSubmit = useCallback(() => {
     setErrorName("");
     setErrorPriority("");
     setErrorAmount("");
@@ -212,36 +234,335 @@ const Discount = () => {
       setErrorPriority("Priority must be integer and > 0 , < 99 !!!");
       valid = false;
     }
-    if (parseFloat(amout) < 0) {
+    if (parseFloat(amout) <= 0) {
       setErrorAmount("Amount must be > 0!!!");
       valid = false;
     }
     if (valid) {
-      console.log("--------------------------------------");
-      console.log("Name: ", name);
-      console.log("Priority: ", priority);
-      console.log("Status: ", selected);
-      console.log("Apply to Products : ", value);
-      console.log("selectedProduct: ", selectedProduct);
-      console.log("selectedCollection: ", selectedCollection);
-      console.log("selectedTags: ", selectedOptions);
-      console.log("Customer Price : ", selectedPrice[0]);
-      console.log("Amout : ", amout);
-      console.log("--------------------------------------");
+      (async () => {
+        console.log("--------------------------------------");
+        console.log("Name: ", name);
+        console.log("Priority: ", priority);
+        console.log("Status: ", selected);
+        console.log("Apply to Products : ", value);
+        console.log("selectedProduct: ", selectedProduct);
+        console.log("selectedCollection: ", selectedCollection);
+        console.log("selectedTags: ", selectedOptions);
+        console.log("Customer Price : ", selectedPrice[0]);
+        console.log("Amout : ", amout);
+        console.log("--------------------------------------");
 
-      if (value == "allProducts") {
-        const {
-          data: Products,
-          isLoading: isLoading2,
-          isRefetching: isRefetching2,
-        } = useAppQuery({
-          url: "/api/tags/arrivals",
-        });
+        if (value == "allProducts") {
+          const url = `/api/getProducts`;
+          const method = "GET";
+          const response = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log(response);
+          if (response.ok) {
+            var Products = await response.json();
+            if (selectedPrice[0] == "selectedProducts") {
+              // Products.body.data.products.edges.forEach((e) => {
+              //   arrListProduct.push([
+              //     e.node.title,
+              //     `All variant prices is ${amout}`,
+              //   ]);
+              // });
+              Products.body.data.products.edges.forEach((e) => {
+                e.node.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.displayName,
+                    `Price: ${t.node.price - amout > 0 ? amout : t.node.price}`,
+                  ]);
+                });
+              });
+              console.log(Products.body.data.products.edges);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "fixedAmount") {
+              Products.body.data.products.edges.forEach((e) => {
+                e.node.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.displayName,
+                    `Price: ${
+                      t.node.price - amout > 0 ? t.node.price - amout : 0
+                    }`,
+                  ]);
+                });
+              });
+              console.log(arrListProduct);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "decseasePercentage") {
+              // Products.body.data.products.edges.forEach((e) => {
+              //   arrListProduct.push([
+              //     e.node.title,
+              //     `All variant prices - ${amout < 100 ? amout : 100}%`,
+              //   ]);
+              // });
+              Products.body.data.products.edges.forEach((e) => {
+                e.node.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.displayName,
+                    `Price: ${
+                      amout < 100
+                        ? t.node.price - (t.node.price * amout) / 100
+                        : 0
+                    }`,
+                  ]);
+                });
+              });
+              console.log(Products.body.data.products.edges);
+              setListProducts(arrListProduct);
+            }
+          }
+        }
+        if (value == "specificProducts") {
+          var productsId = [];
+          for (let i = 0; i < selectedProduct.length; i++) {
+            productsId.push(selectedProduct[i].id);
+          }
+          const url = `/api/productsIds`;
+          const method = "POST";
+          const response = await fetch(url, {
+            method,
+            body: JSON.stringify({ Ids: productsId }),
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log(response);
+          if (response.ok) {
+            var Products = await response.json();
+            if (selectedPrice[0] == "selectedProducts") {
+              // Products.body.data.nodes.forEach((e) => {
+              //   arrListProduct.push([
+              //     e.title,
+              //     `All variant prices is ${amout}`,
+              //   ]);
+              // });
+              Products.body.data.nodes.forEach((e) => {
+                e.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.displayName,
+                    `Price: ${t.node.price - amout > 0 ? amout : t.node.price}`,
+                  ]);
+                });
+              });
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "fixedAmount") {
+              Products.body.data.nodes.forEach((e) => {
+                e.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.displayName,
+                    `Price: ${
+                      t.node.price - amout > 0 ? t.node.price - amout : 0
+                    }`,
+                  ]);
+                });
+              });
+              console.log(arrListProduct);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "decseasePercentage") {
+              // Products.body.data.nodes.forEach((e) => {
+              //   arrListProduct.push([
+              //     e.title,
+              //     `All variant prices - ${amout}%`,
+              //   ]);
+              // });
+              Products.body.data.nodes.forEach((e) => {
+                e.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.displayName,
+                    `Price: ${
+                      amout < 100
+                        ? t.node.price - (t.node.price * amout) / 100
+                        : 0
+                    }`,
+                  ]);
+                });
+              });
+              console.log(Products);
+              setListProducts(arrListProduct);
+            }
+          }
+        }
+        if (value == "productCollections") {
+          var collectionsIds = [];
+          for (let i = 0; i < selectedCollection.length; i++) {
+            collectionsIds.push(selectedCollection[i].id);
+          }
+          const url = `/api/collectionsIds`;
+          const method = "POST";
+          const response = await fetch(url, {
+            method,
+            body: JSON.stringify({ Ids: collectionsIds }),
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log(response);
+          if (response.ok) {
+            var Products = await response.json();
+            if (selectedPrice[0] == "selectedProducts") {
+              // Products.body.data.nodes.forEach((pro) => {
+              //   pro.products.edges.forEach((e) => {
+              //     arrListProduct.push([
+              //       e.node.title,
+              //       `All variant prices is ${amout}`,
+              //     ]);
+              //   });
+              // });
+              Products.body.data.nodes.forEach((pro) => {
+                pro.products.edges.forEach((e) => {
+                  e.node.variants.edges.forEach((t) => {
+                    arrListProduct.push([
+                      t.node.title,
+                      `Price: ${
+                        t.node.price - amout > 0 ? amout : t.node.price
+                      }`,
+                    ]);
+                  });
+                });
+              });
+              console.log(Products);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "fixedAmount") {
+              Products.body.data.nodes.forEach((pro) => {
+                pro.products.edges.forEach((e) => {
+                  e.node.variants.edges.forEach((t) => {
+                    arrListProduct.push([
+                      t.node.title,
+                      `Price: ${
+                        t.node.price - amout > 0 ? t.node.price - amout : 0
+                      }`,
+                    ]);
+                  });
+                });
+              });
+              console.log(arrListProduct);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "decseasePercentage") {
+              // Products.body.data.nodes.forEach((pro) => {
+              //   pro.products.edges.forEach((e) => {
+              //     arrListProduct.push([
+              //       e.node.title,
+              //       `All variant prices - ${amout}%`,
+              //     ]);
+              //   });
+              // });
+              Products.body.data.nodes.forEach((pro) => {
+                pro.products.edges.forEach((e) => {
+                  e.node.variants.edges.forEach((t) => {
+                    arrListProduct.push([
+                      t.node.title,
+                      `Price: ${
+                        amout < 100
+                          ? t.node.price - (t.node.price * amout) / 100
+                          : 0
+                      }`,
+                    ]);
+                  });
+                });
+              });
+              console.log(Products);
+              setListProducts(arrListProduct);
+            }
+          }
+        }
+        if (value == "productTags") {
+          var tags = [];
+          for (let i = 0; i < selectedOptions.length; i++) {
+            tags.push(selectedOptions[i]);
+          }
+          const url = `/api/tagsIds`;
+          const method = "POST";
+          const response = await fetch(url, {
+            method,
+            body: JSON.stringify({ Ids: tags }),
+            headers: { "Content-Type": "application/json" },
+          });
+          console.log(response);
+          if (response.ok) {
+            var Products = await response.json();
+            if (selectedPrice[0] == "selectedProducts") {
+              // Products.body.data.products.edges.forEach((e) => {
+              //   arrListProduct.push([
+              //     e.node.title,
+              //     `All variant prices is ${amout}`,
+              //   ]);
+              // });
+              Products.body.data.products.edges.forEach((e) => {
+                e.node.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.title,
+                    `Price: ${t.node.price - amout > 0 ? amout : t.node.price}`,
+                  ]);
+                });
+              });
+              console.log(Products);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "fixedAmount") {
+              Products.body.data.products.edges.forEach((e) => {
+                e.node.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.title,
+                    `Price: ${
+                      t.node.price - amout > 0 ? t.node.price - amout : 0
+                    }`,
+                  ]);
+                });
+              });
+              console.log(arrListProduct);
+              setListProducts(arrListProduct);
+            }
+            if (selectedPrice[0] == "decseasePercentage") {
+              // Products.body.data.products.edges.forEach((e) => {
+              //   arrListProduct.push([
+              //     e.node.title,
+              //     `All variant prices - ${amout}%`,
+              //   ]);
+              // });
+              Products.body.data.products.edges.forEach((e) => {
+                e.node.variants.edges.forEach((t) => {
+                  arrListProduct.push([
+                    t.node.title,
+                    `Price: ${
+                      amout < 100
+                        ? t.node.price - (t.node.price * amout) / 100
+                        : 0
+                    }`,
+                  ]);
+                });
+              });
+              console.log(Products);
+              setListProducts(arrListProduct);
+            }
+          }
+        }
 
-        console.log("Products:", Products);
-      }
+        localStorage.clear();
+        localStorage.setItem("arrListProduct", JSON.stringify(arrListProduct));
+        localStorage.setItem("Name", JSON.stringify(name));
+        localStorage.setItem("Priority", JSON.stringify(priority));
+        localStorage.setItem("status", JSON.stringify(selected));
+        localStorage.setItem("applyProducts", JSON.stringify(value));
+        localStorage.setItem(
+          "selectedProduct",
+          JSON.stringify(selectedProduct)
+        );
+        localStorage.setItem(
+          "selectedCollection",
+          JSON.stringify(selectedCollection)
+        );
+        localStorage.setItem("selectedTags", JSON.stringify(selectedOptions));
+        localStorage.setItem("slectedPrice", JSON.stringify(selectedPrice[0]));
+        localStorage.setItem("Amout", JSON.stringify(amout));
+      })();
     }
-  };
+  });
   function removeProduct(id) {
     arrProduct = selectedProduct;
 
@@ -303,7 +624,7 @@ const Discount = () => {
       setShowResourcePickerTags(false);
     }
   }, []);
-  return isLoading && isLoading3 && isLoading2 ? (
+  return isLoading ? (
     <div style={{ height: "100px" }}>
       <Frame>
         <Loading />
@@ -314,7 +635,7 @@ const Discount = () => {
       <Frame>
         <Stack vertical>
           <Layout>
-            <Layout.Section>
+            <Layout.Section oneHalf>
               <Form onSubmit={handleSubmit}>
                 <FormLayout>
                   <Card sectioned title="General Information">
@@ -544,12 +865,12 @@ const Discount = () => {
                 </FormLayout>
               </Form>
             </Layout.Section>
-            <Layout.Section secondary>
+            <Layout.Section oneThird>
               <Layout.AnnotatedSection title="Show Product Pricing Details" />
               <DataTable
                 columnContentTypes={["text", "numeric"]}
                 headings={["Title", "Modified Price"]}
-                rows={arrListProduct}
+                rows={listProcducts}
               />
             </Layout.Section>
           </Layout>
