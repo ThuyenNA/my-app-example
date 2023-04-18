@@ -22,7 +22,7 @@ import {
 } from "@shopify/polaris";
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useAppQuery, useAuthenticatedFetch } from "../hooks";
-import { Provider, ResourcePicker } from "@shopify/app-bridge-react";
+import { ResourcePicker } from "@shopify/app-bridge-react";
 const Discount = () => {
   const [name, setName] = useState("");
   const [priority, SetPriority] = useState(0);
@@ -142,8 +142,6 @@ const Discount = () => {
     (_, value) => {
       setValue(value);
 
-      // if (value == "allProducts") {
-      // }
       if (value == "specificProducts") {
         setShowSearchProducts(true);
         if (selectedProduct) {
@@ -222,41 +220,6 @@ const Discount = () => {
     }
   }
 
-  // if (Data)
-  //   if (Data.length > 0) {
-  //     useMemo(() => setListProducts(Data), []);
-  //   }
-  // if (selectedCollectionDb)
-  //   if (selectedCollectionDb.length > 0) {
-  //     useMemo(() => setSelectedCollection(selectedCollectionDb), []);
-  //   }
-  // if (selectedTagsDb)
-  //   if (selectedTagsDb.length > 0) {
-  //     useMemo(() => setSelectedOptions(selectedTagsDb), []);
-  //   }
-  // if (Name) {
-  //   useMemo(() => setName(Name), []);
-  // }
-  // if (Priority) {
-  //   useMemo(() => SetPriority(Priority), []);
-  // }
-  // if (applyProducts) {
-  //   useMemo(() => setValue(applyProducts), []);
-  // }
-  // if (status) {
-  //   useMemo(() => setSelected(status), []);
-  // }
-  // if (Amout) {
-  //   useMemo(() => SetAmount(Amout), []);
-  // }
-  // if (selectedProductDb)
-  //   if (selectedProductDb.length > 0) {
-  //     useMemo(() => setSelectedProduct(selectedProductDb), []);
-  //   }
-  // if (slectedPrice) {
-  //   useMemo(() => setSelectedPrice(slectedPrice), []);
-  // }
-
   const verticalContentMarkup =
     selectedOptions.length > 0 ? (
       <List spacing="extraTight" alignment="center">
@@ -315,18 +278,6 @@ const Discount = () => {
     }
     if (valid) {
       (async () => {
-        console.log("--------------------------------------");
-        console.log("Name: ", name);
-        console.log("Priority: ", priority);
-        console.log("Status: ", selected);
-        console.log("Apply to Products : ", value);
-        console.log("selectedProduct: ", selectedProduct);
-        console.log("selectedCollection: ", selectedCollection);
-        console.log("selectedTags: ", selectedOptions);
-        console.log("Customer Price : ", selectedPrice[0]);
-        console.log("Amout : ", amout);
-        console.log("--------------------------------------");
-
         if (value == "allProducts") {
           const url = `/api/getProducts`;
           const method = "GET";
@@ -334,16 +285,9 @@ const Discount = () => {
             method,
             headers: { "Content-Type": "application/json" },
           });
-          console.log(response);
           if (response.ok) {
             var Products = await response.json();
             if (selectedPrice[0] == "selectedProducts") {
-              // Products.body.data.products.edges.forEach((e) => {
-              //   arrListProduct.push([
-              //     e.node.title,
-              //     `All variant prices is ${amout}`,
-              //   ]);
-              // });
               Products.body.data.products.edges.forEach((e) => {
                 e.node.variants.edges.forEach((t) => {
                   arrListProduct.push([
@@ -352,7 +296,6 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(Products.body.data.products.edges);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "fixedAmount") {
@@ -366,16 +309,9 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(arrListProduct);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "decseasePercentage") {
-              // Products.body.data.products.edges.forEach((e) => {
-              //   arrListProduct.push([
-              //     e.node.title,
-              //     `All variant prices - ${amout < 100 ? amout : 100}%`,
-              //   ]);
-              // });
               Products.body.data.products.edges.forEach((e) => {
                 e.node.variants.edges.forEach((t) => {
                   arrListProduct.push([
@@ -388,7 +324,6 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(Products.body.data.products.edges);
               setListProducts(arrListProduct);
             }
           }
@@ -405,16 +340,9 @@ const Discount = () => {
             body: JSON.stringify({ Ids: productsId }),
             headers: { "Content-Type": "application/json" },
           });
-          console.log(response);
           if (response.ok) {
             var Products = await response.json();
             if (selectedPrice[0] == "selectedProducts") {
-              // Products.body.data.nodes.forEach((e) => {
-              //   arrListProduct.push([
-              //     e.title,
-              //     `All variant prices is ${amout}`,
-              //   ]);
-              // });
               Products.body.data.nodes.forEach((e) => {
                 e.variants.edges.forEach((t) => {
                   arrListProduct.push([
@@ -436,16 +364,9 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(arrListProduct);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "decseasePercentage") {
-              // Products.body.data.nodes.forEach((e) => {
-              //   arrListProduct.push([
-              //     e.title,
-              //     `All variant prices - ${amout}%`,
-              //   ]);
-              // });
               Products.body.data.nodes.forEach((e) => {
                 e.variants.edges.forEach((t) => {
                   arrListProduct.push([
@@ -458,7 +379,6 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(Products);
               setListProducts(arrListProduct);
             }
           }
@@ -475,18 +395,9 @@ const Discount = () => {
             body: JSON.stringify({ Ids: collectionsIds }),
             headers: { "Content-Type": "application/json" },
           });
-          console.log(response);
           if (response.ok) {
             var Products = await response.json();
             if (selectedPrice[0] == "selectedProducts") {
-              // Products.body.data.nodes.forEach((pro) => {
-              //   pro.products.edges.forEach((e) => {
-              //     arrListProduct.push([
-              //       e.node.title,
-              //       `All variant prices is ${amout}`,
-              //     ]);
-              //   });
-              // });
               Products.body.data.nodes.forEach((pro) => {
                 pro.products.edges.forEach((e) => {
                   e.node.variants.edges.forEach((t) => {
@@ -499,7 +410,6 @@ const Discount = () => {
                   });
                 });
               });
-              console.log(Products);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "fixedAmount") {
@@ -515,18 +425,9 @@ const Discount = () => {
                   });
                 });
               });
-              console.log(arrListProduct);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "decseasePercentage") {
-              // Products.body.data.nodes.forEach((pro) => {
-              //   pro.products.edges.forEach((e) => {
-              //     arrListProduct.push([
-              //       e.node.title,
-              //       `All variant prices - ${amout}%`,
-              //     ]);
-              //   });
-              // });
               Products.body.data.nodes.forEach((pro) => {
                 pro.products.edges.forEach((e) => {
                   e.node.variants.edges.forEach((t) => {
@@ -541,7 +442,6 @@ const Discount = () => {
                   });
                 });
               });
-              console.log(Products);
               setListProducts(arrListProduct);
             }
           }
@@ -558,16 +458,9 @@ const Discount = () => {
             body: JSON.stringify({ Ids: tags }),
             headers: { "Content-Type": "application/json" },
           });
-          console.log(response);
           if (response.ok) {
             var Products = await response.json();
             if (selectedPrice[0] == "selectedProducts") {
-              // Products.body.data.products.edges.forEach((e) => {
-              //   arrListProduct.push([
-              //     e.node.title,
-              //     `All variant prices is ${amout}`,
-              //   ]);
-              // });
               Products.body.data.products.edges.forEach((e) => {
                 e.node.variants.edges.forEach((t) => {
                   arrListProduct.push([
@@ -576,7 +469,6 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(Products);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "fixedAmount") {
@@ -590,16 +482,9 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(arrListProduct);
               setListProducts(arrListProduct);
             }
             if (selectedPrice[0] == "decseasePercentage") {
-              // Products.body.data.products.edges.forEach((e) => {
-              //   arrListProduct.push([
-              //     e.node.title,
-              //     `All variant prices - ${amout}%`,
-              //   ]);
-              // });
               Products.body.data.products.edges.forEach((e) => {
                 e.node.variants.edges.forEach((t) => {
                   arrListProduct.push([
@@ -612,7 +497,6 @@ const Discount = () => {
                   ]);
                 });
               });
-              console.log(Products);
               setListProducts(arrListProduct);
             }
           }
@@ -640,32 +524,26 @@ const Discount = () => {
   };
   function removeProduct(id) {
     arrProduct = selectedProduct;
-
     for (var i = arrProduct?.length - 1; i >= 0; i--) {
       if (arrProduct[i].id == id) {
         arrProduct.splice(i, 1);
       }
     }
     setShowSelectedProduct(false);
-
     const myTimeout = setTimeout(myGreeting, 1);
-
     function myGreeting() {
       setShowSelectedProduct(true);
     }
   }
   function removeCollection(id) {
     arrCollections = selectedCollection;
-
     for (var i = arrCollections?.length - 1; i >= 0; i--) {
       if (arrCollections[i].id == id) {
         arrCollections.splice(i, 1);
       }
     }
     setShowSelectedCollection(false);
-
     const myTimeout = setTimeout(myGreeting, 1);
-
     function myGreeting() {
       setShowSelectedCollection(true);
     }
@@ -878,7 +756,6 @@ const Discount = () => {
                   </Card>
                   <Card sectioned title="Custom Price">
                     <ChoiceList
-                      // title="Company name"
                       choices={[
                         {
                           label: "Apply a price to selected products",
