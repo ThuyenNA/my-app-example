@@ -47,13 +47,13 @@ const Discount = () => {
   const handleChangeAmount = useCallback((value) => SetAmount(value), []);
   const handleSelectChange = useCallback((value) => setSelected(value), []);
   const [listProcducts, setListProducts] = useState([]);
+  const [getData, setGetData] = useState(true);
   const options = [
     { label: "enable", value: "enable" },
     { label: "disable", value: "disable" },
   ];
   const [value, setValue] = useState("allProducts");
 
-  const [selectedOptions, setSelectedOptions] = useState(["accessories"]);
   var arr = [];
 
   var arrListProduct = [];
@@ -74,58 +74,15 @@ const Discount = () => {
       arr.push({ value: e.node, label: e.node });
     });
   }
-  const deselectedOptions = useMemo(() => arr, []);
-  const [options2, setOptions2] = useState(arr);
-  useMemo(() => setOptions2(arr), [Tags]);
+
+  let deselectedOptions = useMemo(() => arr, [Tags]);
 
   const [inputValue, setInputValue] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState(["accessories"]);
 
-  const Data = JSON.parse(localStorage.getItem("arrListProduct"));
-  const Name = JSON.parse(localStorage.getItem("Name"));
-  const Priority = JSON.parse(localStorage.getItem("Priority"));
-  const status = JSON.parse(localStorage.getItem("status"));
-  const applyProducts = JSON.parse(localStorage.getItem("applyProducts"));
-  const selectedProductDb = JSON.parse(localStorage.getItem("selectedProduct"));
-  const selectedCollectionDb = JSON.parse(
-    localStorage.getItem("selectedCollection")
-  );
-  const selectedTagsDb = JSON.parse(localStorage.getItem("selectedTags"));
-  const slectedPrice = JSON.parse(localStorage.getItem("slectedPrice"));
-  const Amout = JSON.parse(localStorage.getItem("Amout"));
-  if (Data)
-    if (Data.length > 0) {
-      useMemo(() => setListProducts(Data), []);
-    }
-  if (selectedCollectionDb)
-    if (selectedCollectionDb.length > 0) {
-      useMemo(() => setSelectedCollection(selectedCollectionDb), []);
-    }
-  if (selectedTagsDb)
-    if (selectedTagsDb.length > 0) {
-      useMemo(() => setSelectedOptions(selectedTagsDb), []);
-    }
-  if (Name) {
-    useMemo(() => setName(Name), []);
-  }
-  if (Priority) {
-    useMemo(() => SetPriority(Priority), []);
-  }
-  if (applyProducts) {
-    useMemo(() => setValue(applyProducts), []);
-  }
-  if (status) {
-    useMemo(() => setSelected(status), []);
-  }
-  if (Amout) {
-    useMemo(() => SetAmount(Amout), []);
-  }
-  if (selectedProductDb)
-    if (selectedProductDb.length > 0) {
-      useMemo(() => setSelectedProduct(selectedProductDb), []);
-    }
-  if (slectedPrice) {
-    useMemo(() => setSelectedPrice([slectedPrice]), []);
-  }
+  const [options2, setOptions2] = useState(arr);
+  useMemo(() => setOptions2(arr), [deselectedOptions]);
+
   const updateText = useCallback(
     (value) => {
       setInputValue(value);
@@ -142,7 +99,7 @@ const Discount = () => {
 
       setOptions2(resultOptions);
     },
-    [deselectedOptions]
+    [arr]
   );
 
   const removeTag = useCallback(
@@ -153,6 +110,152 @@ const Discount = () => {
     },
     [selectedOptions]
   );
+
+  const handleChangePrice = useCallback((value) => setSelectedPrice(value), []);
+  const handleProductChange = useCallback(({ selection }) => {
+    arrProduct = new Array();
+    selection.forEach((s) => {
+      arrProduct.push({
+        id: s.id,
+        src: s.images[0].originalSrc,
+        title: s.title,
+      });
+    });
+    setSelectedProduct(arrProduct);
+    setShowResourcePicker(false);
+    setShowSelectedProduct(true);
+  }, []);
+  const handleCollectionChange = useCallback(({ selection }) => {
+    arrCollections = new Array();
+    selection.forEach((s) => {
+      arrCollections.push({
+        id: s.id,
+        src: s.image.originalSrc,
+        title: s.title,
+      });
+    });
+    setSelectedCollection(arrCollections);
+    setShowResourcePickerCollection(false);
+    setShowSelectedCollection(true);
+  }, []);
+  const handleChangeRadio = useCallback(
+    (_, value) => {
+      setValue(value);
+
+      // if (value == "allProducts") {
+      // }
+      if (value == "specificProducts") {
+        setShowSearchProducts(true);
+        if (selectedProduct) {
+          setShowSelectedProduct(true);
+        }
+      } else {
+        setShowSelectedProduct(false);
+        setShowSearchProducts(false);
+      }
+      if (value == "productCollections") {
+        setShowSearchCollection(true);
+        if (selectedCollection) {
+          setShowSelectedCollection(true);
+        }
+      } else {
+        setShowSearchCollection(false);
+        setShowSelectedCollection(false);
+      }
+      if (value == "productTags") {
+        setShowResourcePickerTags(true);
+      } else {
+        setShowResourcePickerTags(false);
+      }
+    },
+    [value]
+  );
+  const Data = JSON.parse(localStorage.getItem("arrListProduct"));
+  const Name = JSON.parse(localStorage.getItem("Name"));
+  const Priority = JSON.parse(localStorage.getItem("Priority"));
+  const status = JSON.parse(localStorage.getItem("status"));
+  const applyProducts = JSON.parse(localStorage.getItem("applyProducts"));
+  const selectedProductDb = JSON.parse(localStorage.getItem("selectedProduct"));
+  const selectedCollectionDb = JSON.parse(
+    localStorage.getItem("selectedCollection")
+  );
+  const selectedTagsDb = JSON.parse(localStorage.getItem("selectedTags"));
+  const slectedPrice = JSON.parse(localStorage.getItem("slectedPrice"));
+  const Amout = JSON.parse(localStorage.getItem("Amout"));
+  if (Data) {
+    if (Data.length > 0 && getData) {
+      setListProducts(Data);
+      if (selectedCollectionDb) {
+        if (selectedCollectionDb.length > 0) {
+          setSelectedCollection(selectedCollectionDb);
+        }
+      }
+      if (selectedTagsDb) {
+        if (selectedTagsDb.length > 0) {
+          setSelectedOptions(selectedTagsDb);
+        }
+      }
+      if (Name) {
+        setName(Name);
+      }
+      if (Priority) {
+        SetPriority(Priority);
+      }
+      if (applyProducts) {
+        setValue(applyProducts);
+      }
+      if (status) {
+        setSelected(status);
+      }
+      if (Amout) {
+        SetAmount(Amout);
+      }
+      if (selectedProductDb) {
+        if (selectedProductDb.length > 0) {
+          setSelectedProduct(selectedProductDb);
+        }
+      }
+      if (slectedPrice) {
+        setSelectedPrice(slectedPrice);
+      }
+      setGetData(false);
+    }
+  }
+
+  // if (Data)
+  //   if (Data.length > 0) {
+  //     useMemo(() => setListProducts(Data), []);
+  //   }
+  // if (selectedCollectionDb)
+  //   if (selectedCollectionDb.length > 0) {
+  //     useMemo(() => setSelectedCollection(selectedCollectionDb), []);
+  //   }
+  // if (selectedTagsDb)
+  //   if (selectedTagsDb.length > 0) {
+  //     useMemo(() => setSelectedOptions(selectedTagsDb), []);
+  //   }
+  // if (Name) {
+  //   useMemo(() => setName(Name), []);
+  // }
+  // if (Priority) {
+  //   useMemo(() => SetPriority(Priority), []);
+  // }
+  // if (applyProducts) {
+  //   useMemo(() => setValue(applyProducts), []);
+  // }
+  // if (status) {
+  //   useMemo(() => setSelected(status), []);
+  // }
+  // if (Amout) {
+  //   useMemo(() => SetAmount(Amout), []);
+  // }
+  // if (selectedProductDb)
+  //   if (selectedProductDb.length > 0) {
+  //     useMemo(() => setSelectedProduct(selectedProductDb), []);
+  //   }
+  // if (slectedPrice) {
+  //   useMemo(() => setSelectedPrice(slectedPrice), []);
+  // }
 
   const verticalContentMarkup =
     selectedOptions.length > 0 ? (
@@ -189,35 +292,7 @@ const Discount = () => {
       .join("");
   }
 
-  const handleChangePrice = useCallback((value) => setSelectedPrice(value), []);
-  const handleProductChange = useCallback(({ selection }) => {
-    arrProduct = new Array();
-    selection.forEach((s) => {
-      arrProduct.push({
-        id: s.id,
-        src: s.images[0].originalSrc,
-        title: s.title,
-      });
-    });
-    setSelectedProduct(arrProduct);
-    setShowResourcePicker(false);
-    setShowSelectedProduct(true);
-  }, []);
-  const handleCollectionChange = useCallback(({ selection }) => {
-    arrCollections = new Array();
-    selection.forEach((s) => {
-      arrCollections.push({
-        id: s.id,
-        src: s.image.originalSrc,
-        title: s.title,
-      });
-    });
-    setSelectedCollection(arrCollections);
-    setShowResourcePickerCollection(false);
-    setShowSelectedCollection(true);
-  }, []);
-
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = () => {
     setErrorName("");
     setErrorPriority("");
     setErrorAmount("");
@@ -558,11 +633,11 @@ const Discount = () => {
           JSON.stringify(selectedCollection)
         );
         localStorage.setItem("selectedTags", JSON.stringify(selectedOptions));
-        localStorage.setItem("slectedPrice", JSON.stringify(selectedPrice[0]));
+        localStorage.setItem("slectedPrice", JSON.stringify(selectedPrice));
         localStorage.setItem("Amout", JSON.stringify(amout));
       })();
     }
-  });
+  };
   function removeProduct(id) {
     arrProduct = selectedProduct;
 
@@ -595,35 +670,7 @@ const Discount = () => {
       setShowSelectedCollection(true);
     }
   }
-  const handleChangeRadio = useCallback((_, value) => {
-    setValue(value);
 
-    if (value == "allProducts") {
-    }
-    if (value == "specificProducts") {
-      setShowSearchProducts(true);
-      if (selectedProduct) {
-        setShowSelectedProduct(true);
-      }
-    } else {
-      setShowSelectedProduct(false);
-      setShowSearchProducts(false);
-    }
-    if (value == "productCollections") {
-      setShowSearchCollection(true);
-      if (selectedCollection) {
-        setShowSelectedCollection(true);
-      }
-    } else {
-      setShowSearchCollection(false);
-      setShowSelectedCollection(false);
-    }
-    if (value == "productTags") {
-      setShowResourcePickerTags(true);
-    } else {
-      setShowResourcePickerTags(false);
-    }
-  }, []);
   return isLoading ? (
     <div style={{ height: "100px" }}>
       <Frame>
